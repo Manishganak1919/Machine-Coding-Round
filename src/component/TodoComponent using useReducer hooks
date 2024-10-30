@@ -1,0 +1,67 @@
+import { useReducer, useState } from "react";
+
+const initialTodos = []; // initial state for todos
+
+// Reducer function
+const todoreducer = (state, action) => {
+  switch (action.type) {
+    case "addTodo":
+      return [
+        ...state,
+        { id: Date.now(), text: action.payload, completed: false },
+      ];
+    case "toggleTodo":
+      return state.map((todo) =>
+        todo.id === action.payload
+          ? { ...todo, completed: !todo.completed }
+          : todo
+      );
+    case "deleteTodo":
+      return state.filter((todo) => todo.id !== action.payload);
+    default:
+      return state;
+  }
+};
+
+export default function TodoCompo() {
+  const [todos, dispatch] = useReducer(todoreducer, initialTodos);
+  const [text, setText] = useState("");
+
+  const addTodo = () => {
+    if (text.trim()) {
+      dispatch({ type: "addTodo", payload: text });
+      setText("");
+    }
+  };
+
+  return (
+    <div className="App">
+      <h1>Todo List</h1>
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Add a todo"
+      />
+      <button onClick={addTodo}>Add Todo</button>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            <span
+              onClick={() => dispatch({ type: "toggleTodo", payload: todo.id })}
+              style={{
+                textDecoration: todo.completed ? "line-through" : "none",
+              }}
+            >
+              {todo.text}
+            </span>
+            <button
+              onClick={() => dispatch({ type: "deleteTodo", payload: todo.id })}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
